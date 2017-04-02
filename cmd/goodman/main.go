@@ -39,18 +39,18 @@ func main() {
 			cmd := exec.Command(path, fmt.Sprintf("-port=%d", hookServerInitalPort))
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			fmt.Println("Sending to channel\n")
+			fmt.Println("Sending to channel")
 			cmds <- cmd
 			fmt.Println("Completed")
 			go func() {
-				log.Printf("Starting hooks server in go routine")
+				log.Println("Starting hooks server in go routine")
 				err := cmd.Run()
 				if err != nil {
 					fmt.Println("Hooks client failed with " + err.Error())
 				}
 			}()
 			// Must sleep so go routine running hooks server has chance to startup
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(1000 * time.Millisecond)
 			runners = append(runners, goodman.NewRunner("Hooks", hookServerInitalPort))
 			hookServerInitalPort++
 		}
@@ -65,7 +65,7 @@ func main() {
 }
 
 func closeHooksServers() {
-	log.Printf("Shutting down hooks servers\n")
+	log.Println("Shutting down hooks servers")
 	count := 0
 	for cmd := range cmds {
 		cmd.Process.Kill()
