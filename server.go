@@ -8,6 +8,7 @@ import (
 	"net"
 
 	t "github.com/snikch/goodman/transaction"
+	"os"
 )
 
 const (
@@ -36,7 +37,17 @@ func NewServer(runners []Runner) *Server {
 // Run starts the server listening for events from dredd.
 func (server *Server) Run() error {
 	fmt.Println("Starting")
-	ln, err := net.Listen("tcp", ":"+server.Port)
+
+	var (
+		ln net.Listener
+		err error
+	)
+	if listenIP := os.Getenv("GOODMAN_LISTEN_IP"); len(listenIP) > 0 {
+		ln, err = net.Listen("tcp", listenIP+":"+server.Port)
+	} else {
+		ln, err = net.Listen("tcp", ":"+server.Port)
+	}
+
 	if err != nil {
 		return err
 	}

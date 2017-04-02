@@ -5,10 +5,21 @@ import (
 	"net/rpc"
 
 	"github.com/snikch/goodman/transaction"
+	"os"
 )
 
 func NewRunner(rpcService string, port int) *Run {
-	client, err := rpc.DialHTTPPath("tcp", fmt.Sprintf(":%d", port), "/")
+
+	var (
+		client *rpc.Client
+		err error
+	)
+
+	if listenIP := os.Getenv("GOODMAN_LISTEN_IP"); len(listenIP) > 0 {
+		client, err = rpc.DialHTTPPath("tcp", fmt.Sprintf("%s:%d", listenIP, port), "/")
+	} else {
+		client, err = rpc.DialHTTPPath("tcp", fmt.Sprintf(":%d", port), "/")
+	}
 
 	if err != nil {
 		panic(err.Error())
