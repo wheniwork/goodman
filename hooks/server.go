@@ -9,6 +9,7 @@ import (
 	"net/rpc"
 
 	trans "github.com/snikch/goodman/transaction"
+	"os"
 )
 
 type Server struct {
@@ -23,7 +24,18 @@ func NewServer(run RunnerRPC) *Server {
 	if *port == 0 {
 		panic("-port flag was not given to hook server")
 	}
-	l, e := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+
+	var (
+		l net.Listener
+		e error
+	)
+
+	if listenIP := os.Getenv("GOODMAN_LISTEN_IP"); len(listenIP) > 0 {
+		l, e = net.Listen("tcp", fmt.Sprintf("%s:%d", listenIP, *port))
+	} else {
+		l, e = net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	}
+
 	if e != nil {
 		log.Fatal("listen error:", e)
 	}
